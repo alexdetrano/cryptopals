@@ -1,21 +1,48 @@
 #!/usr/bin/env python
 """
-Convert hex to base64
+Fixed XOR
 
-The string:
+Write a function that takes two equal-length buffers and produces their XOR combination.
 
-49276d206b696c6c696e6720796f757220627261696e206c696b65206120706f69736f6e6f7573206d757368726f6f6d
+If your function works properly, then when you feed it the string:
 
-Should produce:
+1c0111001f010100061a024b53535009181c
 
-SSdtIGtpbGxpbmcgeW91ciBicmFpbiBsaWtlIGEgcG9pc29ub3VzIG11c2hyb29t
+... after hex decoding, and when XOR'd against:
+
+686974207468652062756c6c277320657965
+
+... should produce:
+
+746865206b696420646f6e277420706c6179
+
 """
-import utils as u
+def hex2bytearray(s):
+    """convert a hex-encoded string to bytearray"""
+    return(bytearray.fromhex(s))
 
+def bytearray2hex(b):
+    """convert a bytearray object to a hex-encoded string"""
+    return(b.hex())
+
+def print_bytearray(b):
+    """print a bytearray as an ascii-encoded string, replacing non-ascii with string escape"""
+    print(b.decode('ascii', 'replace'))
+
+def xor(x,y):
+    """xor 2 buffers of equal length
+
+    raises ValueError if buffers are not equal in length
+    """
+    if len(x) != len(y):
+        raise ValueError('Buffer lengths not equal. lenths = {}, {}'.format(len(x), len(y)))
+    return(bytearray(b[0] ^ b[1] for b in zip(bytearray(x),bytearray(y))))
 
 if __name__ == '__main__':
-    hex_str = '49276d206b696c6c696e6720796f757220627261696e206c696b65206120706f69736f6e6f7573206d757368726f6f6d'
-    b64_expected =b'SSdtIGtpbGxpbmcgeW91ciBicmFpbiBsaWtlIGEgcG9pc29ub3VzIG11c2hyb29t'
-    b64_calc = u.hex2base64(hex_str)
-    print(b64_calc)
-    assert(b64_calc == b64_expected)
+    my_str ='1c0111001f010100061a024b53535009181c'
+    key ='686974207468652062756c6c277320657965'
+    expected ='746865206b696420646f6e277420706c6179'
+    calc = xor(hex2bytearray(my_str), hex2bytearray(key))
+    print_bytearray(calc)
+    assert(expected == bytearray2hex(calc))
+
